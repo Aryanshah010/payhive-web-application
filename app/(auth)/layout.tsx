@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Card } from "@/components/ui/card";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,10 +26,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div className="flex h-full items-center justify-center px-4 md:px-10">
-          <div className="w-full max-w-md rounded-xl border border-black/10 dark:border-white/10 bg-background/80 supports-backdrop-filter:backdrop-blur p-6 shadow-sm">
+        <div className="flex h-full items-center justify-center px-4 md:px-10 ">
+          <Card className="w-full max-w-md rounded-2xl border border-border shadow-lg dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]  p-6 sm:p-8  ">
             {children}
-          </div>
+          </Card>
         </div>
       </div>
     </section>
