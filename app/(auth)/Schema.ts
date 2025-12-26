@@ -29,9 +29,11 @@ export const loginSchema = z.object({
         .regex(/^[0-9]{10}$/, {
             message: "Phone number must be exactly 10 digits",
         }),
-    Password: z.string().regex(/^(?=.*[A-Za-z])(?=.*\d).{6,}$/, {
-        message: "Password must be at least 6 characters and include at least one letter and one number",
-    }),
+    Password: z
+        .string()
+        .min(6, "Minimum 6 characters")
+        .regex(/[A-Za-z]/, "Must include a letter")
+        .regex(/[0-9]/, "Must include a number"),
 });
 
 export type LoginType = z.infer<typeof loginSchema>;
