@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { useTransition } from "react";
+import { startTransition, useState, useTransition } from "react";
 import Link from "next/link";
+import { handleRegister } from "@/lib/actions/auth-action";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -20,29 +22,36 @@ export default function RegisterForm() {
     defaultValues: {
       fullName: "",
       phoneNumber: "",
-      Password: "",
+      password: "",
       confirmPassword: "",
     },
   });
 
-  const [pending, setTransition] = useTransition();
+  const [error, setError] = useState("");
+  const [pending] = useTransition();
 
   const onSubmit = async (values: RegisterType) => {
-    setTransition(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      router.push("/login");
-    });
-    console.log("register", values);
+    setError("");
+    try {
+      const response = await handleRegister(values);
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      startTransition(() => router.push("/login"));
+    } catch (err: any) {
+      setError(err.message || "Registration Failed");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && <span>{error}</span>}
       <FieldGroup>
         <Field className="space-y-0">
           <FieldLabel>Full Name</FieldLabel>
           <Input
             {...register("fullName")}
-              placeholder="Jane Doe"
+            placeholder="Jane Doe"
             autoComplete="off"
             disabled={isSubmitting}
           />
@@ -71,17 +80,17 @@ export default function RegisterForm() {
         </Field>
 
         <Field className="space-y-0">
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel>password</FieldLabel>
           <Input
-            {...register("Password")}
+            {...register("password")}
             placeholder="••••••••••••"
             type="password"
             autoComplete="new-password"
             disabled={isSubmitting}
           />
-          {touchedFields.Password && errors.Password && (
+          {touchedFields.password && errors.password && (
             <p className="text-sm text-destructive ">
-              {errors.Password.message}
+              {errors.password.message}
             </p>
           )}
         </Field>
@@ -103,7 +112,7 @@ export default function RegisterForm() {
         </Field>
       </FieldGroup>
 
-     <Button
+      <Button
         type="submit"
         disabled={isSubmitting || pending}
         className="w-full mt-12"

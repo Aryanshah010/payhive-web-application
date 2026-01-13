@@ -7,14 +7,14 @@ export const registerScheme = z.object({
         .regex(/^[0-9]{10}$/, {
             message: "Phone number must be exactly 10 digits",
         }),
-    Password: z
+    password: z
         .string()
         .min(6, "Minimum 6 characters")
         .regex(/[A-Za-z]/, "Must include a letter")
         .regex(/[0-9]/, "Must include a number"),
     confirmPassword: z.string(),
 }).refine(
-    (data) => data.Password === data.confirmPassword,
+    (data) => data.password === data.confirmPassword,
     {
         message: "Passwords do not match", path: ["confirmPassword"]
     }
