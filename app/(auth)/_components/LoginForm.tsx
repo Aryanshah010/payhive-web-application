@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,8 +7,9 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
+import { handleLogin } from "@/lib/actions/auth-action";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -19,22 +21,38 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       phoneNumber: "",
-      Password: "",
+      password: "",
     },
   });
 
+  const [error, setError] = useState("");
   const [pending, setTransition] = useTransition();
 
   const onSubmit = async (values: LoginType) => {
+    setError("");
+
+    // GOTO
     setTransition(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      router.push("/dashboard");
+      try {
+        const response = await handleLogin(values);
+        if (!response.success) {
+          throw new Error(response.message);
+        }
+        if (response.success) {
+          router.push("/dashboard");
+        } else {
+          setError("Login failed");
+        }
+      } catch (err: Error | any) {
+        setError(err.message || "Login failed");
+      }
     });
-    console.log("login", values);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
       <FieldGroup>
         <Field className="space-y-0">
           <FieldLabel>Phone Number</FieldLabel>
@@ -56,15 +74,15 @@ export default function LoginForm() {
         <Field className="space-y-0">
           <FieldLabel>Password</FieldLabel>
           <Input
-            {...register("Password")}
+            {...register("password")}
             placeholder="••••••••••••"
             type="password"
             autoComplete="new-password"
             disabled={isSubmitting}
           />
-          {touchedFields.Password && errors.Password && (
+          {touchedFields.password && errors.password && (
             <p className="text-sm text-destructive ">
-              {errors.Password.message}
+              {errors.password.message}
             </p>
           )}
         </Field>

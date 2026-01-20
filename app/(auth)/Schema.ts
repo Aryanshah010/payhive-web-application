@@ -29,7 +29,7 @@ export const loginSchema = z.object({
         .regex(/^[0-9]{10}$/, {
             message: "Phone number must be exactly 10 digits",
         }),
-    Password: z
+    password: z
         .string()
         .min(6, "Minimum 6 characters")
         .regex(/[A-Za-z]/, "Must include a letter")

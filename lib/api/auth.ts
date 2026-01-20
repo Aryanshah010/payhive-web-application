@@ -13,3 +13,13 @@ export const register = async (registrationData: any) => {
         throw new Error(err.response?.data?.message /*message from backend*/ || err.message /*general exception messafe*/ || "Registration failed" /*fallback message*/);
     }
 }
+
+export const login = async (loginData: any) => {
+    try {
+        const response = await axios.post(API.AUTH.LOGIN, loginData);
+        return response.data; //response body
+    } catch (err: Error | any) {
+        //4xx - 5xx falls in catch
+        throw new Error(err.response?.data?.message /*message from backend*/ || err.message /*general exception messafe*/ || "Login Failed" /*fallback message*/);
+    }
+}

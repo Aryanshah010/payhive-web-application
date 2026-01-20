@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { startTransition, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { handleRegister } from "@/lib/actions/auth-action";
 
@@ -28,24 +28,33 @@ export default function RegisterForm() {
   });
 
   const [error, setError] = useState("");
-  const [pending] = useTransition();
+  const [pending, setTransition] = useTransition();
 
   const onSubmit = async (values: RegisterType) => {
     setError("");
-    try {
-      const response = await handleRegister(values);
-      if (!response.success) {
-        throw new Error(response.message);
+    setTransition(async () => {
+      try {
+        const response = await handleRegister(values);
+        if (!response.success) {
+          throw new Error(response.message);
+        }
+        if (response.success) {
+          router.push("/login");
+        } else {
+          setError("Registration failed");
+        }
+      } catch (err: Error | any) {
+        setError(err.message || "Registration failed");
       }
-      startTransition(() => router.push("/login"));
-    } catch (err: any) {
-      setError(err.message || "Registration Failed");
-    }
+    });
+    // GO TO LOGIN PAGE
+    console.log("register", values);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && <span>{error}</span>}
+      {error && (<p className="text-sm text-destructive">{error}</p>)}
+
       <FieldGroup>
         <Field className="space-y-0">
           <FieldLabel>Full Name</FieldLabel>
