@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//Server side acitons
 "use server";
 import { login, register } from "../api/auth";
 import { setAuthToken, setUserData, clearAuthCookies } from "../cookie";
@@ -7,10 +6,8 @@ import { redirect } from "next/navigation";
 
 export async function handleRegister(formData: any) {
     try {
-        //how to take data from component
         const result = await register(formData);
 
-        //how to send data to component
         if (result.success) {
             return {
                 success: true,
@@ -25,15 +22,12 @@ export async function handleRegister(formData: any) {
     } catch (err: Error | any) {
         return { success: false, message: err.message }
     }
-
-
 }
+
 export async function handleLogin(formData: any) {
     try {
-        //how to take data from component
         const result = await login(formData);
 
-        //how to send data to component
         if (result.success) {
             await setAuthToken(result.token);
             await setUserData(result.data);
@@ -50,8 +44,6 @@ export async function handleLogin(formData: any) {
     } catch (err: Error | any) {
         return { success: false, message: err.message }
     }
-
-
 }
 
 export const handleLogout = async () => {
