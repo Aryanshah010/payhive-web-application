@@ -10,7 +10,7 @@ export const createUser = async (userData: any) => {
             userData,
             {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data', // for file upload/multer
                 }
             }
         );

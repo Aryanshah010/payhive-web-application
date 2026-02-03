@@ -39,7 +39,7 @@ export default function LoginForm() {
           throw new Error(response.message);
         }
         if (response.success) {
-          router.push("/dashboard");
+          router.push("/user/dashboard");
         } else {
           setError("Login failed");
         }

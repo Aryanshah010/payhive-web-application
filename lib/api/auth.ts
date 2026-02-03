@@ -21,3 +21,12 @@ export const login = async (loginData: LoginType) => {
         throw new Error(error.response?.data?.message || error.message || 'Login failed')
     }
 }
+
+export const fetchUserData = async () => {
+    try {
+        const response = await axios.get(API.AUTH.ME);
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message || error.message || 'Fetch user data failed');
+    }
+}

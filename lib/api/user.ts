@@ -2,7 +2,7 @@
 import { API } from "./endpoints";
 import axios from "./axios";
 
-export const updateProfile = async (profileData: any) => {
+export const updateProfile = async (profileData: FormData) => {
     try {
         const response = await axios.put(
             API.USER.UPDATEPROFILE,

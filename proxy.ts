@@ -20,7 +20,7 @@ export async function proxy(request: NextRequest) {
 
     if (token && user) {
         if (isAdminRoute && user.role !== 'admin') {
-            return NextResponse.redirect(new URL('/', request.url));
+            return NextResponse.redirect(new URL('/user/dashboard', request.url));
         }
         if (isUserRoute && user.role !== 'user' && user.role !== 'admin') {
             return NextResponse.redirect(new URL('/', request.url));
@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
     }
 
     if (isPublicRoute && token) {
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(new URL('/user/dashboard', request.url));
     }
 
     return NextResponse.next();
