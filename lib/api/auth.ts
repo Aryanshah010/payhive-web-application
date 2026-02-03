@@ -1,25 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-//AUTHENTICAITON API CALL
-import axios from "./axios"; //important
+import axios from "./axios";
 import { API } from './endpoints';
+import { LoginType, RegisterType } from "@/app/(auth)/Schema";
 
-//registrationData: any -> can be RegistrationType from schema
-export const register = async (registrationData: any) => {
+
+export const register = async (registerData: RegisterType) => {
     try {
-        const response = await axios.post(API.AUTH.REGISTER, registrationData);
-        return response.data; //response body
-    } catch (err: Error | any) {
-        //4xx - 5xx falls in catch
-        throw new Error(err.response?.data?.message /*message from backend*/ || err.message /*general exception messafe*/ || "Registration failed" /*fallback message*/);
+        const response = await axios.post(API.AUTH.REGISTER, registerData)
+        return response.data
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message || error.message || 'Registration failed')
     }
 }
 
-export const login = async (loginData: any) => {
+export const login = async (loginData: LoginType) => {
     try {
-        const response = await axios.post(API.AUTH.LOGIN, loginData);
-        return response.data; //response body
-    } catch (err: Error | any) {
-        //4xx - 5xx falls in catch
-        throw new Error(err.response?.data?.message /*message from backend*/ || err.message /*general exception messafe*/ || "Login Failed" /*fallback message*/);
+        const response = await axios.post(API.AUTH.LOGIN, loginData)
+        return response.data
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message || error.message || 'Login failed')
+    }
+}
+
+export const fetchUserData = async () => {
+    try {
+        const response = await axios.get(API.AUTH.ME);
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(error.response?.data?.message || error.message || 'Fetch user data failed');
     }
 }
