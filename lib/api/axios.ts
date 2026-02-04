@@ -6,7 +6,7 @@ const BASE_URL =
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
-    withCredentials: true, // safe even if you don't use cookies
+    withCredentials: true, 
 });
 
 // Attach token
@@ -18,7 +18,6 @@ axiosInstance.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // 🚨 IMPORTANT: do NOT set Content-Type here
         return config;
     },
     (error) => Promise.reject(error)

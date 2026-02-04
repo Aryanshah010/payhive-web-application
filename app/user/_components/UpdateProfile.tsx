@@ -6,21 +6,28 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { handleUpdateProfile } from "@/lib/actions/user-action";
-import { UpdateUserData, updateUserSchema } from "../schema";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { UpdateUserFormInput, updateUserSchema } from "../schema";
+import { Label } from "@/components/ui/label";
+import { Camera, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export default function UpdateProfileForm({ user }: { user: any }) {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isSubmitting, touchedFields },
-  } = useForm<UpdateUserData>({
+  } = useForm<any>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       fullName: user?.fullName || "",
+      password: "",
+      imageUrl: undefined,
     },
   });
 
@@ -46,95 +53,125 @@ export default function UpdateProfileForm({ user }: { user: any }) {
     }
   };
 
-  const handleDismissImage = (onChange?: (file: File | undefined) => void) => {
+  const handleDismissImage = () => {
     setPreviewImage(null);
-    onChange?.(undefined);
     setInputKey((k) => k + 1);
   };
 
-  const onSubmit = async (data: UpdateUserData) => {
+  const onSubmit = async (data: UpdateUserFormInput) => {
     setError(null);
+    const parsed = updateUserSchema.parse(data);
 
     const formData = new FormData();
-    formData.append("fullName", data.fullName);
 
-    if (data.imageUrl) {
-      formData.append("imageUrl", data.imageUrl);
+    if (touchedFields.fullName && parsed.fullName) {
+      formData.append("fullName", parsed.fullName);
     }
+
+    if (touchedFields.password && parsed.password) {
+      formData.append("password", parsed.password);
+    }
+
+    if (parsed.imageUrl) {
+      formData.append("profilePicture", parsed.imageUrl);
+    }
+
+    if ([...formData.keys()].length === 0) {
+      toast.info("No changes made to update");
+      router.push("/user/dashboard");
+      return;
+    }
+
     try {
       const res = await handleUpdateProfile(formData);
       if (!res.success) {
-        toast.error(res.message);
+        toast.error(res.message || "Profile update failed");
         return;
       }
+
       setPreviewImage(null);
       setInputKey((k) => k + 1);
       toast.success("Profile updated successfully");
-    } catch (error: Error | any) {
+      router.refresh();
+      router.push("/user/dashboard");
+    } catch (error: any) {
       toast.error(error.message || "Profile update failed");
       setError(error.message || "Profile update failed");
     }
   };
 
+  const currentImage =
+    previewImage ||
+    (user?.imageUrl
+      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}${user.imageUrl}`
+      : null);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {/* Profile Image Display */}
-      <div className="mb-4">
-        {previewImage ? (
-          <div className="relative w-24 h-24">
-            <Image
-              src={previewImage}
-              alt="Profile Image Preview"
-              width={96}
-              height={96}
-              className="w-24 h-24 rounded-full object-cover"
-            />
-            <Controller
-              name="imageUrl"
-              control={control}
-              render={({ field: { onChange } }) => (
-                <button
-                  type="button"
-                  onClick={() => handleDismissImage(onChange)}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
-                >
-                  ✕
-                </button>
-              )}
-            />
-          </div>
-        ) : user?.imageUrl ? (
-          <Image
-            src={process.env.NEXT_PUBLIC_API_BASE_URL + user.imageUrl}
-            alt="Profile Image"
-            width={100}
-            height={100}
-            className="w-24 h-24 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-            <span className="text-gray-600">No Image</span>
-          </div>
-        )}
-      </div>
+      
+      {/* Profile Upload */}
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative group">
+          <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-background shadow-2xl shadow-primary/10 transition-all duration-300 group-hover:shadow-primary/20 group-hover:scale-[1.03]">
+            {currentImage ? (
+              <Image
+                src={currentImage}
+                alt="Profile picture"
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
+                <span className="text-4xl">👤</span>
+              </div>
+            )}
 
-      {/* Profile Image Input */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Profile Image</label>
-        <Controller
-          name="imageUrl"
-          control={control}
-          render={({ field: { onChange } }) => (
-            <input
-              key={inputKey}
-              type="file"
-              onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
-              accept=".jpg,.jpeg,.png,.webp"
-            />
-          )}
-        />
-        {typeof errors.imageUrl?.message === "string" && (
+            <label
+              htmlFor="profile-picture"
+              className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer rounded-full"
+            >
+              <Camera size={40} color="white" />
+            </label>
+
+            {previewImage && (
+              <button
+                type="button"
+                onClick={() => handleDismissImage()}
+                className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-8 h-8 flex items-center justify-center shadow-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
+          <Controller
+            name="imageUrl"
+            control={control}
+            render={({ field: { onChange } }) => (
+              <input
+                key={inputKey}
+                id="profile-picture"
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                className="sr-only"
+                onChange={(e) =>
+                  handleImageChange(e.target.files?.[0], onChange)
+                }
+              />
+            )}
+          />
+        </div>
+
+        <Label
+          htmlFor="profile-picture"
+          className="text-sm text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+        >
+          {previewImage ? "Change photo" : "Upload new photo"}
+        </Label>
+
+        {errors.imageUrl && typeof errors.imageUrl.message === "string" && (
           <p className="text-sm text-destructive">{errors.imageUrl.message}</p>
         )}
       </div>
@@ -154,35 +191,31 @@ export default function UpdateProfileForm({ user }: { user: any }) {
           )}
       </Field>
 
+      <Field className="space-y-0">
+        <FieldLabel>Password (Optional)</FieldLabel>
+        <Input
+          {...register("password")}
+          type="password"
+          autoComplete="new-password"
+          disabled={isSubmitting}
+        />
+        {touchedFields.password &&
+          typeof errors.password?.message === "string" && (
+            <p className="text-sm text-destructive">
+              {errors.password.message}
+            </p>
+          )}
+      </Field>
       <Button
         type="submit"
         disabled={isSubmitting || pending}
         className="w-full mt-12"
       >
         <span className="flex items-center justify-center gap-2">
-          {isSubmitting || pending ? (
-            <>
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              updating profile...
-            </>
-          ) : (
-            "Update Profile"
+          {(isSubmitting || pending) && (
+            <Loader2 className="h-4 w-4 animate-spin" />
           )}
+          {isSubmitting || pending ? "Updating profile..." : "Update Profile"}
         </span>
       </Button>
     </form>
