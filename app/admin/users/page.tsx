@@ -41,6 +41,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -53,6 +64,8 @@ import {
 import UserAvatar from "./_components/UserAvatar";
 import { Separator } from "@/components/ui/separator";
 import { Search } from "lucide-react";
+import { toast } from "react-toastify";
+import { handleDeleteOneUser } from "@/lib/actions/admin/user-action";
 
 export default function UsersTable() {
   const [users, setUsers] = useState<any[]>([]);
@@ -65,6 +78,39 @@ export default function UsersTable() {
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deleteUserId) return;
+
+    try {
+      await handleDeleteOneUser(deleteUserId);
+      toast.success("User deleted successfully");
+
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete user");
+    } finally {
+      setDeleteUserId(null);
+    }
+  };
+
+  const fetchUsers = async () => {
+    setLoading(true);
+
+    const res = await getAllUsers(page, limit, debouncedSearch, role);
+
+    if (res.success && res.data) {
+      setUsers(res.data.users);
+      setTotal(res.data.total);
+      setTotalPages(res.data.totalPages);
+    } else {
+      setUsers([]);
+    }
+
+    setLoading(false);
+  };
 
   const [role, setRole] = useState("");
 
@@ -113,6 +159,32 @@ export default function UsersTable() {
 
   return (
     <div className="p-6">
+      <AlertDialog
+        open={!!deleteUserId}
+        onOpenChange={() => setDeleteUserId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              user and remove their data from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting}
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-xl font-semibold">Users Table</CardTitle>
@@ -233,7 +305,20 @@ export default function UsersTable() {
 
                           <Separator />
 
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem
+                            disabled={user.role === "admin"}
+                            onSelect={(e) => {
+                              if (user.role === "admin") {
+                                e.preventDefault();
+                                toast.error("Admins cannot be deleted");
+                                return;
+                              }
+
+                              e.preventDefault();
+                              setDeleteUserId(user._id);
+                            }}
+                            className="flex items-center gap-2 text-destructive disabled:opacity-50"
+                          >
                             <HugeiconsIcon icon={DeleteIcon} size={16} />
                             Delete
                           </DropdownMenuItem>
