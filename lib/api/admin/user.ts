@@ -41,15 +41,28 @@ export const updateOneUser = async (id: string, userData: any) => {
 }
 
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (
+    page: number = 1,
+    limit: number = 10,
+    search: string = "",
+    role: string = ""
+
+) => {
     try {
-        const response = await axios.get(API.ADMIN.USER.READALL);
+        const response = await axios.get(API.ADMIN.USER.READALL, {
+            params: { page, limit,search, role},
+        });
+
         return response.data;
-    } catch (error: Error | any) {
-        throw new Error(error.response?.data?.message
-            || error.message || 'Get all users failed');
+    } catch (error: any) {
+        throw new Error(
+            error.response?.data?.message ||
+            error.message ||
+            "Get all users failed"
+        );
     }
-}
+};
+
 
 export const getOneUser = async (id: string) => {
     try {

@@ -23,23 +23,43 @@ export const handleCreateUser = async (data: FormData) => {
     }
 }
 
-export const handleGetAllUsers = async () => {
+export const handleGetAllUsers = async (
+    page: number = 1,
+    limit: number = 10,
+    search: string = "",
+    role: string = ""
+
+) => {
     try {
-        const response = await getAllUsers();
+        const response = await getAllUsers(page, limit, search, role);
+
         if (response.success) {
             return {
                 success: true,
-                data: response.data
-            }
+                data: response.data.users,
+                pagination: {
+                    page: response.data.page,
+                    totalPages: response.data.totalPages,
+                    total: response.data.total,
+                    limit: response.data.limit,
+                    search: search,
+                    role: role
+                },
+            };
         }
+
         return {
             success: false,
-            message: response.message || 'Get all users failed'
-        }
-    } catch (error: Error | any) {
-        return { success: false, message: error.message || 'Get all users action failed' }
+            message: response.message || "Get all users failed",
+        };
+    } catch (error: any) {
+        return {
+            success: false,
+            message: error.message || "Get all users action failed",
+        };
     }
-}
+};
+
 
 export const handleGetOneUser = async (id: string) => {
     try {

@@ -52,24 +52,64 @@ import {
 } from "@hugeicons/core-free-icons";
 import UserAvatar from "./_components/UserAvatar";
 import { Separator } from "@/components/ui/separator";
+import { Search } from "lucide-react";
 
 export default function UsersTable() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [search]);
+
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersResult = await getAllUsers();
+      setLoading(true);
 
-      if (usersResult.success) {
-        setUsers(usersResult.data);
+      const res = await getAllUsers(page, limit, debouncedSearch, role);
+
+      if (res.success && res.data) {
+        setUsers(res.data.users);
+        setTotal(res.data.total);
+        setTotalPages(res.data.totalPages);
+      } else {
+        setUsers([]);
       }
 
       setLoading(false);
     };
 
     fetchUsers();
-  }, []);
+  }, [page, limit, debouncedSearch, role]);
+
+  const goToPage = (p: number) => {
+    const clamped = Math.min(Math.max(1, p), totalPages);
+    setPage(clamped);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+  };
+
+  const handleRoleChange = (value: string) => {
+    setPage(1);
+    setRole(value === "all" ? "" : value);
+  };
 
   return (
     <div className="p-6">
@@ -80,15 +120,29 @@ export default function UsersTable() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* 🔍 Search + Filter (UI only) */}
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-            <Input
-              placeholder="Search by name or phone..."
-              className="sm:max-w-xs"
-              disabled
-            />
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
-            <Select disabled>
+              <Input
+                placeholder="Search by name or phone number"
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="h-10 rounded-lg pl-9 pr-9 bg-muted/40 focus:bg-background transition"
+              />
+
+              {search && (
+                <button
+                  onClick={() => handleSearchChange("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <Select value={role || "all"} onValueChange={handleRoleChange}>
               <SelectTrigger className="sm:w-45">
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
@@ -96,12 +150,10 @@ export default function UsersTable() {
                 <SelectItem value="all">All roles</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="user">User</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* 📋 Table */}
           <Table>
             <TableHeader>
               <TableRow>
@@ -116,21 +168,21 @@ export default function UsersTable() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center text-muted-foreground py-8"
-                  >
+                  <TableCell colSpan={5} className="text-center py-8">
                     Loading users...
+                  </TableCell>
+                </TableRow>
+              ) : users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">
+                    No users found.
                   </TableCell>
                 </TableRow>
               ) : (
                 users.map((user, index) => (
-                  <TableRow
-                    key={user._id}
-                    className="hover:bg-muted/50 transition-colors"
-                  >
+                  <TableRow key={user._id}>
                     <TableCell className="text-muted-foreground">
-                      {index + 1}
+                      {(page - 1) * limit + index + 1}
                     </TableCell>
 
                     <TableCell>
@@ -194,27 +246,59 @@ export default function UsersTable() {
             </TableBody>
           </Table>
 
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious />
-              </PaginationItem>
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm">Total Users: {total}</p>
 
-              <PaginationItem>
-                <PaginationLink isActive>1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink>2</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink>3</PaginationLink>
-              </PaginationItem>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => {
+                      if (page === 1) return;
+                      goToPage(page - 1);
+                    }}
+                    className={
+                      page === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
 
-              <PaginationItem>
-                <PaginationNext />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                  const half = Math.floor(5 / 2);
+                  let start = Math.max(1, page - half);
+                  if (start + 4 > totalPages)
+                    start = Math.max(1, totalPages - 4);
+                  const pageNumber = start + i;
+                  if (pageNumber > totalPages) return null;
+
+                  return (
+                    <PaginationItem key={pageNumber}>
+                      <PaginationLink
+                        isActive={pageNumber === page}
+                        onClick={() => goToPage(pageNumber)}
+                      >
+                        {pageNumber}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                })}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => {
+                      if (page === totalPages) return;
+                      goToPage(page + 1);
+                    }}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -222,9 +306,9 @@ export default function UsersTable() {
 }
 
 function RoleBadge({ role }: { role: string }) {
-  if (role === "admin") {
-    return <Badge className="bg-red-500/10 text-red-600">Admin</Badge>;
-  } else {
-    return <Badge className="bg-green-500/10 text-green-600">User</Badge>;
-  }
+  return role === "admin" ? (
+    <Badge className="bg-red-500/10 text-red-600">Admin</Badge>
+  ) : (
+    <Badge className="bg-green-500/10 text-green-600">User</Badge>
+  );
 }
