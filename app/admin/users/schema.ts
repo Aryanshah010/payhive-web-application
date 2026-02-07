@@ -9,6 +9,7 @@ export const UserSchema = z.object({
         .regex(/^[0-9]{10}$/, {
             message: "Phone number must be exactly 10 digits",
         }),
+        email: z.email({ message: "Invalid email address" }),
     imageUrl: z
         .instanceof(File)
         .optional()

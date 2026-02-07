@@ -3,7 +3,9 @@ export const API = {
     AUTH: {
         LOGIN: "/api/auth/login",
         REGISTER: "/api/auth/register",
-        ME: "/api/auth/me"
+        ME: "/api/auth/me",
+        REQUEST_PASSWORD_RESET: "/api/auth/request-password-reset",
+        RESET_PASSWORD: "/api/auth/reset-password"
     },
     USER: {
         UPDATEPROFILE: "/api/profile/updateProfile"

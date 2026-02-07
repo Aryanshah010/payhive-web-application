@@ -10,6 +10,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import axios from "../../../../lib/api/axios";
+import { LoadingButton } from "@/app/_components/LoadingButton";
 
 export default function CreateUserForm() {
   const {
@@ -23,6 +24,7 @@ export default function CreateUserForm() {
     defaultValues: {
       fullName: "",
       phoneNumber: "",
+      email: "",
       password: "",
       confirmPassword: "",
     },
@@ -36,8 +38,9 @@ export default function CreateUserForm() {
     startTransition(async () => {
       try {
         const formData = new FormData();
-        if (data.fullName) formData.append("fullName", data.fullName);
+        formData.append("fullName", data.fullName);
         formData.append("phoneNumber", data.phoneNumber);
+        formData.append("email", data.email);
         formData.append("password", data.password);
         formData.append("confirmPassword", data.confirmPassword);
 
@@ -157,6 +160,19 @@ export default function CreateUserForm() {
         </Field>
 
         <Field className="space-y-0">
+          <FieldLabel>Email</FieldLabel>
+          <Input
+            {...register("email")}
+            placeholder="jane.doe@example.com"
+            autoComplete="off"
+            disabled={isSubmitting}
+          />
+          {touchedFields.email && errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
+        </Field>
+
+        <Field className="space-y-0">
           <FieldLabel>Password</FieldLabel>
           <Input
             {...register("password")}
@@ -189,37 +205,14 @@ export default function CreateUserForm() {
         </Field>
       </FieldGroup>
 
-      <Button
+      <LoadingButton
         type="submit"
-        disabled={isSubmitting || pending}
-        className="w-full mt-12"
+        loading={isSubmitting || pending}
+        loadingText="Creating account..."
+        className="mt-6"
       >
-        <span className="flex items-center justify-center gap-2">
-          {isSubmitting || pending ? (
-            <>
-              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Creating account...
-            </>
-          ) : (
-            "Create User"
-          )}
-        </span>
-      </Button>
+        Create User
+      </LoadingButton>
     </form>
   );
 }

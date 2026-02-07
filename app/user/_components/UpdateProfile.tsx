@@ -8,12 +8,11 @@ import { toast } from "react-toastify";
 import { handleUpdateProfile } from "@/lib/actions/user-action";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { UpdateUserFormInput, updateUserSchema } from "../schema";
 import { Label } from "@/components/ui/label";
 import { Camera, X } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { LoadingButton } from "@/app/_components/LoadingButton";
 
 export default function UpdateProfileForm({ user }: { user: any }) {
   const router = useRouter();
@@ -103,13 +102,13 @@ export default function UpdateProfileForm({ user }: { user: any }) {
   const currentImage =
     previewImage ||
     (user?.imageUrl
-      ? `${process.env.NEXT_PUBLIC_API_BASE_URL}${user.imageUrl}`
+      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
       : null);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {error && <p className="text-sm text-destructive">{error}</p>}
-      
+
       {/* Profile Upload */}
       <div className="flex flex-col items-center gap-3">
         <div className="relative group">
@@ -206,18 +205,15 @@ export default function UpdateProfileForm({ user }: { user: any }) {
             </p>
           )}
       </Field>
-      <Button
+
+      <LoadingButton
         type="submit"
-        disabled={isSubmitting || pending}
-        className="w-full mt-12"
+        loading={isSubmitting || pending}
+        loadingText="Updating profile..."
+        className="mt-12"
       >
-        <span className="flex items-center justify-center gap-2">
-          {(isSubmitting || pending) && (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          )}
-          {isSubmitting || pending ? "Updating profile..." : "Update Profile"}
-        </span>
-      </Button>
+        Update Profile
+      </LoadingButton>
     </form>
   );
 }

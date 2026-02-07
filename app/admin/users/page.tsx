@@ -1,6 +1,5 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useState } from "react";
 import { getAllUsers } from "@/lib/api/admin/user";
 import {
@@ -79,7 +78,7 @@ export default function UsersTable() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleting] = useState(false);
 
   const handleDelete = async () => {
     if (!deleteUserId) return;
@@ -232,6 +231,7 @@ export default function UsersTable() {
                 <TableHead className="w-15">#</TableHead>
                 <TableHead>User</TableHead>
                 <TableHead>Phone</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -269,6 +269,7 @@ export default function UsersTable() {
                     </TableCell>
 
                     <TableCell>{user.phoneNumber}</TableCell>
+                    <TableCell>{user.email}</TableCell>
 
                     <TableCell>
                       <RoleBadge role={user.role} />
