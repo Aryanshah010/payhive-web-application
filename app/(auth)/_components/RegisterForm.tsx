@@ -139,7 +139,7 @@ export default function RegisterForm() {
       <LoadingButton
         type="submit"
         loading={isSubmitting || pending}
-        loadingText="Creating user..."
+        loadingText="Creating account..."
         className="mt-12"
       >
         Create Account
