@@ -127,17 +127,11 @@ export default function SendMoneyFlow() {
     }
   }, [step, draft.amount, draft.remark, amountForm]);
 
-  useEffect(() => {
-    if (error) {
-      setError(null);
-    }
-  }, [step]);
-
   const warningMessage = useMemo(() => {
     if (!preview?.warning?.largeAmount) return null;
     const avg = preview.warning.avg30d ?? 0;
     return `This amount is more than 2× your 30-day average (avg: ${formatAmount(
-      avg
+      avg,
     )}).`;
   }, [preview]);
 
@@ -344,7 +338,6 @@ export default function SendMoneyFlow() {
                     })}
                     placeholder="0.00"
                     type="number"
-                    step="0.01"
                     min="0"
                     disabled={pending}
                   />
@@ -370,9 +363,7 @@ export default function SendMoneyFlow() {
                     <span>
                       {amountForm.formState.errors.remark?.message || ""}
                     </span>
-                    <span>
-                      {(remarkValue || "").length}/140
-                    </span>
+                    <span>{(remarkValue || "").length}/140</span>
                   </div>
                 </Field>
               </FieldGroup>
@@ -533,7 +524,25 @@ export default function SendMoneyFlow() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Phone</span>
-                    <span className="font-medium">{receipt.to.phoneNumber}</span>
+                    <span className="font-medium">
+                      {receipt.to.phoneNumber}
+                    </span>
+                  </div>
+                </CardContent>
+                  
+                <CardHeader>
+                  <CardTitle className="text-base">Sender</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Name</span>
+                    <span className="font-medium">{receipt.from.fullName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Phone</span>
+                    <span className="font-medium">
+                      {receipt.from.phoneNumber}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -547,8 +556,11 @@ export default function SendMoneyFlow() {
 
             <Separator />
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-4">
               <Button onClick={resetFlow}>Send another</Button>
+              <Button variant="outline" onClick={() => window.print()}>
+                🖨️ Print Receipt
+              </Button>
             </div>
           </div>
         )}
