@@ -10,6 +10,11 @@ export const API = {
     USER: {
         UPDATEPROFILE: "/api/profile/updateProfile"
     },
+    TRANSACTIONS: {
+        BENEFICIARY: "/api/transactions/beneficiary",
+        PREVIEW: "/api/transactions/preview",
+        CONFIRM: "/api/transactions/confirm"
+    },
     ADMIN: {
         USER: {
             CREATE: '/api/admin/users',
