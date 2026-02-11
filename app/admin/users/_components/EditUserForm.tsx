@@ -2,74 +2,101 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Controller, useForm } from "react-hook-form";
-import { UserData, UserSchema } from "@/app/admin/users/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify";
-import axios from "../../../../lib/api/axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AdminUserEditData, AdminUserEditSchema } from "../schema";
 import { LoadingButton } from "@/app/_components/LoadingButton";
+import { handleUpdateOneUser } from "@/lib/actions/admin/user-action";
+import { Button } from "@/components/ui/button";
 
-export default function CreateUserForm() {
+export default function EditUserForm({
+  user,
+  userId,
+}: {
+  user: any;
+  userId: string;
+}) {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
-    reset,
     control,
     formState: { errors, isSubmitting, touchedFields },
-  } = useForm<UserData>({
-    resolver: zodResolver(UserSchema),
+  } = useForm<any>({
+    resolver: zodResolver(AdminUserEditSchema),
     defaultValues: {
-      fullName: "",
-      phoneNumber: "",
-      email: "",
+      fullName: user?.fullName || "",
+      phoneNumber: user?.phoneNumber || "",
+      email: user?.email || "",
+      role: user?.role || "user",
       password: "",
       confirmPassword: "",
+      imageUrl: undefined,
     },
   });
 
-  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onSubmit = async (data: UserData) => {
+  const currentImage =
+    previewImage ||
+    (user?.imageUrl
+      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${user.imageUrl}`
+      : null);
+
+  const onSubmit = async (data: AdminUserEditData) => {
+    setError(null);
+
+    const formData = new FormData();
+    formData.append("fullName", data.fullName);
+    formData.append("phoneNumber", data.phoneNumber);
+    formData.append("email", data.email);
+    formData.append("role", data.role);
+
+    if (data.password) {
+      formData.append("password", data.password);
+    }
+
+    if (data.imageUrl) {
+      formData.append("profilePicture", data.imageUrl);
+    }
+
     startTransition(async () => {
       try {
-        const formData = new FormData();
-        formData.append("fullName", data.fullName);
-        formData.append("phoneNumber", data.phoneNumber);
-        formData.append("email", data.email);
-        formData.append("password", data.password);
-        formData.append("confirmPassword", data.confirmPassword);
-
-        if (data.imageUrl) {
-          formData.append("profilePicture", data.imageUrl);
-        }
-
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/users`,
-          formData,
-        );
-
-        if (!res.data.success) {
-          toast.error(res.data.message);
+        const res = await handleUpdateOneUser(userId, formData);
+        if (!res.success) {
+          toast.error(res.message || "Update failed");
+          setError(res.message || "Update failed");
           return;
         }
 
-        toast.success("User created successfully");
-        reset();
-        setPreviewImage(null);
-      } catch (err: any) {
-        toast.error(err?.message || "Create failed");
+        toast.success("User updated successfully");
+        router.push(`/admin/users/${userId}`);
+      } catch (err: Error | any) {
+        const message = err.message || "Update failed";
+        toast.error(message);
+        setError(message);
       }
     });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Avatar */}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
       <Controller
         name="imageUrl"
         control={control}
@@ -80,6 +107,7 @@ export default function CreateUserForm() {
               type="file"
               accept="image/*"
               hidden
+              id="user-avatar"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -93,21 +121,23 @@ export default function CreateUserForm() {
 
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
               className="relative w-20 h-20 rounded-full overflow-hidden border bg-muted flex items-center justify-center hover:opacity-90 transition"
             >
-              {previewImage ? (
+              {currentImage ? (
                 <img
-                  src={previewImage}
+                  src={currentImage}
                   className="w-full h-full object-cover"
-                  alt="Avatar preview"
+                  alt="User avatar"
                 />
               ) : (
                 <span className="text-xs text-muted-foreground">Upload</span>
               )}
             </button>
 
-            {previewImage && (
+            {currentImage && (
               <Button
                 type="button"
                 size="sm"
@@ -115,7 +145,6 @@ export default function CreateUserForm() {
                 onClick={() => {
                   setPreviewImage(null);
                   onChange(undefined);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
               >
                 Remove
@@ -125,7 +154,10 @@ export default function CreateUserForm() {
         )}
       />
 
-      {/* Fields */}
+      {errors.imageUrl && typeof errors.imageUrl.message === "string" && (
+        <p className="text-sm text-destructive">{errors.imageUrl.message}</p>
+      )}
+
       <FieldGroup>
         <Field className="space-y-0">
           <FieldLabel>Full Name</FieldLabel>
@@ -135,7 +167,8 @@ export default function CreateUserForm() {
             autoComplete="off"
             disabled={isSubmitting}
           />
-          {touchedFields.fullName && errors.fullName && (
+          {touchedFields.fullName &&
+          typeof errors.fullName?.message === "string" && (
             <p className="text-sm text-destructive">
               {errors.fullName.message}
             </p>
@@ -152,7 +185,8 @@ export default function CreateUserForm() {
             type="tel"
             disabled={isSubmitting}
           />
-          {touchedFields.phoneNumber && errors.phoneNumber && (
+          {touchedFields.phoneNumber &&
+          typeof errors.phoneNumber?.message === "string" && (
             <p className="text-sm text-destructive">
               {errors.phoneNumber.message}
             </p>
@@ -167,13 +201,36 @@ export default function CreateUserForm() {
             autoComplete="off"
             disabled={isSubmitting}
           />
-          {touchedFields.email && errors.email && (
+          {touchedFields.email &&
+          typeof errors.email?.message === "string" && (
             <p className="text-sm text-destructive">{errors.email.message}</p>
           )}
         </Field>
 
         <Field className="space-y-0">
-          <FieldLabel>Password</FieldLabel>
+          <FieldLabel>Role</FieldLabel>
+          <Controller
+            name="role"
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <Select value={value} onValueChange={onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        {touchedFields.role && typeof errors.role?.message === "string" && (
+            <p className="text-sm text-destructive">{errors.role.message}</p>
+          )}
+        </Field>
+
+        <Field className="space-y-0">
+          <FieldLabel>Password (Optional)</FieldLabel>
           <Input
             {...register("password")}
             placeholder="••••••••••••"
@@ -181,8 +238,9 @@ export default function CreateUserForm() {
             autoComplete="new-password"
             disabled={isSubmitting}
           />
-          {touchedFields.password && errors.password && (
-            <p className="text-sm text-destructive ">
+          {touchedFields.password &&
+          typeof errors.password?.message === "string" && (
+            <p className="text-sm text-destructive">
               {errors.password.message}
             </p>
           )}
@@ -197,8 +255,9 @@ export default function CreateUserForm() {
             type="password"
             disabled={isSubmitting}
           />
-          {touchedFields.confirmPassword && errors.confirmPassword && (
-            <p className="text-sm text-destructive ">
+          {touchedFields.confirmPassword &&
+          typeof errors.confirmPassword?.message === "string" && (
+            <p className="text-sm text-destructive">
               {errors.confirmPassword.message}
             </p>
           )}
@@ -208,10 +267,10 @@ export default function CreateUserForm() {
       <LoadingButton
         type="submit"
         loading={isSubmitting || pending}
-        loadingText="Creating User..."
+        loadingText="Updating user..."
         className="mt-6"
       >
-        Create User
+        Update User
       </LoadingButton>
     </form>
   );

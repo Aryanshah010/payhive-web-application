@@ -28,9 +28,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const user = await getUserData();
             setUser(user);
             setIsAuthenticated(!!token);
-        } catch (err) {
+        } catch (error) {
             setIsAuthenticated(false);
             setUser(null);
+            console.error("Authentication check failed:", error);
         } finally {
             setLoading(false);
         }
