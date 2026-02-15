@@ -74,11 +74,6 @@ export default function AdminDashboard({ stats }: { stats: AdminDashboardStats }
           value={currencyFormatter.format(stats.kpis.avgRevenuePerTransaction)}
           description="Derived average based on mock revenue + transactions"
         />
-        <KpiCard
-          title="Active Services"
-          value={numberFormatter.format(stats.kpis.activeServices)}
-          description="Configured service modules tracked in admin"
-        />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
@@ -153,33 +148,6 @@ export default function AdminDashboard({ stats }: { stats: AdminDashboardStats }
           </CardContent>
         </Card>
 
-        <Card className="border-border/70">
-          <CardHeader>
-            <CardTitle>Monetization Status</CardTitle>
-            <CardDescription>Flutter app monetization integration</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{stats.monetizationStatus.source}</Badge>
-              <span className="text-muted-foreground">
-                Backend ready: {stats.monetizationStatus.backendReady ? "Yes" : "No"}
-              </span>
-            </div>
-            <p className="text-muted-foreground">{stats.monetizationStatus.summary}</p>
-            <div className="rounded-lg border border-dashed border-border/70 bg-muted/30 p-3">
-              <p className="text-xs text-muted-foreground">
-                Next step: {stats.monetizationStatus.nextStep}
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Last updated:{" "}
-              {new Intl.DateTimeFormat("en-US", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              }).format(new Date(stats.generatedAt))}
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

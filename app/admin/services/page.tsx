@@ -3,19 +3,19 @@ import { Badge } from "@/components/ui/badge";
 
 const servicePlaceholders = [
   {
-    name: "Wallet Transfers",
+    name: "Flights",
     status: "Active",
-    description: "Core peer-to-peer transfer service connected to app flows.",
+    description: "Add flights details",
   },
   {
-    name: "Monetization Engine",
+    name: "Hotels",
     status: "Planned",
-    description: "Revenue processing and fee aggregation from Flutter events.",
+    description: "Add Hotels deatils",
   },
   {
-    name: "Refund Workflow",
+    name: "Internet",
     status: "Planned",
-    description: "Operator review and approval queue for reversal requests.",
+    description: "Add service provider",
   },
 ];
 
