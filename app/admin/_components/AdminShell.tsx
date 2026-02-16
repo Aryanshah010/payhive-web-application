@@ -9,8 +9,7 @@ import {
   HandCoins,
   LayoutDashboard,
   Menu,
-  Moon,
-  Sun,
+  SunMoon,
   UserPlus,
   Users,
   X,
@@ -166,11 +165,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   onClick={() => setTheme(isDark ? "light" : "dark")}
                   aria-label="Toggle theme"
                 >
-                  {isDark ? (
-                    <Sun className="size-4" />
-                  ) : (
-                    <Moon className="size-4" />
-                  )}
+                  <SunMoon className="size-4" />
                 </Button>
 
                 <form action={handleLogout}>

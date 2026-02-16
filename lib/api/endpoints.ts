@@ -22,6 +22,20 @@ export const API = {
             UPDATE: '/api/admin/users/:id',
             DELETE: '/api/admin/users/:id',
             READONE: '/api/admin/users/:id'
+        },
+        FLIGHT: {
+            CREATE: "/api/admin/flights",
+            READALL: "/api/admin/flights",
+            UPDATE: "/api/admin/flights/:id",
+            DELETE: "/api/admin/flights/:id",
+            READONE: "/api/admin/flights/:id"
+        },
+        HOTEL: {
+            CREATE: "/api/admin/hotels",
+            READALL: "/api/admin/hotels",
+            UPDATE: "/api/admin/hotels/:id",
+            DELETE: "/api/admin/hotels/:id",
+            READONE: "/api/admin/hotels/:id"
         }
     }
 }

@@ -38,8 +38,9 @@ async function getTotalUsers(): Promise<number> {
     if (response?.success && response?.data?.total) {
       return Number(response.data.total) || 0;
     }
-  } catch (error) {
-    console.error("Failed to load total users for admin dashboard", error);
+  } catch {
+    // Some backend auth/device policies can block server-side reads.
+    // Dashboard gracefully falls back to 0 until client-safe metrics exist.
   }
 
   return 0;
