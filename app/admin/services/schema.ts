@@ -2,7 +2,9 @@ import z from "zod";
 import type {
   CreateFlightPayload,
   CreateHotelPayload,
+  CreateUtilityServicePayload,
   FlightClass,
+  UpdateUtilityServicePayload,
   UpdateFlightPayload,
   UpdateHotelPayload,
 } from "@/lib/types/admin-services";
@@ -111,6 +113,43 @@ export type CreateHotelFormValues = z.output<typeof createHotelSchema>;
 export const editHotelSchema = createHotelSchema;
 export type EditHotelFormInput = z.input<typeof editHotelSchema>;
 export type EditHotelFormValues = z.output<typeof editHotelSchema>;
+
+const baseUtilityServiceSchema = z.object({
+  provider: z.string().trim().min(2, "Provider is required"),
+  name: z.string().trim().min(2, "Service name is required"),
+  packageLabel: z.string().trim().default(""),
+  amount: z
+    .coerce
+    .number({ message: "Amount must be a number" })
+    .positive("Amount must be greater than 0"),
+  validationRegex: z.string().trim().default(""),
+  isActive: z.boolean(),
+  metaText: z.string().optional(),
+});
+
+export const createInternetServiceSchema = baseUtilityServiceSchema;
+export type CreateInternetServiceFormInput =
+  z.input<typeof createInternetServiceSchema>;
+export type CreateInternetServiceFormValues =
+  z.output<typeof createInternetServiceSchema>;
+
+export const editInternetServiceSchema = createInternetServiceSchema;
+export type EditInternetServiceFormInput =
+  z.input<typeof editInternetServiceSchema>;
+export type EditInternetServiceFormValues =
+  z.output<typeof editInternetServiceSchema>;
+
+export const createTopupServiceSchema = baseUtilityServiceSchema;
+export type CreateTopupServiceFormInput =
+  z.input<typeof createTopupServiceSchema>;
+export type CreateTopupServiceFormValues =
+  z.output<typeof createTopupServiceSchema>;
+
+export const editTopupServiceSchema = createTopupServiceSchema;
+export type EditTopupServiceFormInput =
+  z.input<typeof editTopupServiceSchema>;
+export type EditTopupServiceFormValues =
+  z.output<typeof editTopupServiceSchema>;
 
 const trimToUndefined = (value?: string) => {
   const next = value?.trim();
@@ -229,6 +268,69 @@ export const toHotelUpdatePayload = (
   values: EditHotelFormValues,
 ): UpdateHotelPayload => {
   return toHotelCreatePayload(values);
+};
+
+const toUtilityServicePayload = (
+  values:
+    | CreateInternetServiceFormValues
+    | EditInternetServiceFormValues
+    | CreateTopupServiceFormValues
+    | EditTopupServiceFormValues,
+): { payload?: CreateUtilityServicePayload; error?: string } => {
+  const parsedMeta = safeParseMeta(values.metaText);
+  if (parsedMeta.error) {
+    return { error: parsedMeta.error };
+  }
+
+  return {
+    payload: {
+      provider: values.provider.trim(),
+      name: values.name.trim(),
+      packageLabel: values.packageLabel.trim(),
+      amount: values.amount,
+      validationRegex: values.validationRegex.trim(),
+      isActive: values.isActive,
+      ...(parsedMeta.data ? { meta: parsedMeta.data } : {}),
+    },
+  };
+};
+
+export const toInternetServiceCreatePayload = (
+  values: CreateInternetServiceFormValues,
+): { payload?: CreateUtilityServicePayload; error?: string } => {
+  return toUtilityServicePayload(values);
+};
+
+export const toInternetServiceUpdatePayload = (
+  values: EditInternetServiceFormValues,
+): { payload?: UpdateUtilityServicePayload; error?: string } => {
+  const mapped = toUtilityServicePayload(values);
+  if (!mapped.payload || mapped.error) {
+    return mapped;
+  }
+
+  return {
+    payload: mapped.payload,
+  };
+};
+
+export const toTopupServiceCreatePayload = (
+  values: CreateTopupServiceFormValues,
+): { payload?: CreateUtilityServicePayload; error?: string } => {
+  return toUtilityServicePayload(values);
+};
+
+export const toTopupServiceUpdatePayload = (
+  values: EditTopupServiceFormValues,
+): { payload?: UpdateUtilityServicePayload; error?: string } => {
+  const mapped = toUtilityServicePayload(values);
+  if (!mapped.payload || mapped.error) {
+    return mapped;
+  }
+
+  return {
+    payload: mapped.payload,
+  };
 };
 
 export const csvFromArray = (value?: string[]) => {

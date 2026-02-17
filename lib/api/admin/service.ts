@@ -4,13 +4,17 @@ import type {
   AdminFlight,
   AdminHotel,
   AdminListResponse,
+  AdminUtilityService,
   CreateFlightPayload,
   CreateHotelPayload,
+  CreateUtilityServicePayload,
   FlightListQuery,
   HotelListQuery,
   ServiceApiError,
+  UtilityServiceListQuery,
   UpdateFlightPayload,
   UpdateHotelPayload,
+  UpdateUtilityServicePayload,
 } from "@/lib/types/admin-services";
 
 type ApiResponse<T> = {
@@ -184,5 +188,155 @@ export const deleteOneHotel = async (id: string): Promise<DeleteResponse> => {
     return response.data as DeleteResponse;
   } catch (error) {
     throw normalizeError(error, "Delete hotel failed");
+  }
+};
+
+export const createInternetService = async (
+  payload: CreateUtilityServicePayload,
+): Promise<ApiResponse<AdminUtilityService>> => {
+  try {
+    const response = await axios.post<ApiResponse<AdminUtilityService>>(
+      API.ADMIN.INTERNET_SERVICE.CREATE,
+      payload,
+    );
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Create internet service failed");
+  }
+};
+
+export const getAllInternetServices = async (
+  query: UtilityServiceListQuery = {},
+): Promise<ApiResponse<AdminListResponse<AdminUtilityService>>> => {
+  try {
+    const response = await axios.get<
+      ApiResponse<AdminListResponse<AdminUtilityService>>
+    >(API.ADMIN.INTERNET_SERVICE.READALL, { params: query });
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Get all internet services failed");
+  }
+};
+
+export const getOneInternetService = async (
+  id: string,
+): Promise<ApiResponse<AdminUtilityService>> => {
+  try {
+    const endpoint = API.ADMIN.INTERNET_SERVICE.READONE.replace(":id", id);
+    const response = await axios.get<ApiResponse<AdminUtilityService>>(endpoint);
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Get internet service failed");
+  }
+};
+
+export const updateOneInternetService = async (
+  id: string,
+  payload: UpdateUtilityServicePayload,
+): Promise<ApiResponse<AdminUtilityService>> => {
+  try {
+    const endpoint = API.ADMIN.INTERNET_SERVICE.UPDATE.replace(":id", id);
+    const response = await axios.put<ApiResponse<AdminUtilityService>>(
+      endpoint,
+      payload,
+    );
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Update internet service failed");
+  }
+};
+
+export const deleteOneInternetService = async (
+  id: string,
+): Promise<DeleteResponse> => {
+  try {
+    const endpoint = API.ADMIN.INTERNET_SERVICE.DELETE.replace(":id", id);
+    const response = await axios.delete(endpoint);
+
+    if (response.status === 204) {
+      return {
+        success: true,
+        message: "Internet service deleted successfully",
+      };
+    }
+
+    return response.data as DeleteResponse;
+  } catch (error) {
+    throw normalizeError(error, "Delete internet service failed");
+  }
+};
+
+export const createTopupService = async (
+  payload: CreateUtilityServicePayload,
+): Promise<ApiResponse<AdminUtilityService>> => {
+  try {
+    const response = await axios.post<ApiResponse<AdminUtilityService>>(
+      API.ADMIN.TOPUP_SERVICE.CREATE,
+      payload,
+    );
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Create topup service failed");
+  }
+};
+
+export const getAllTopupServices = async (
+  query: UtilityServiceListQuery = {},
+): Promise<ApiResponse<AdminListResponse<AdminUtilityService>>> => {
+  try {
+    const response = await axios.get<
+      ApiResponse<AdminListResponse<AdminUtilityService>>
+    >(API.ADMIN.TOPUP_SERVICE.READALL, { params: query });
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Get all topup services failed");
+  }
+};
+
+export const getOneTopupService = async (
+  id: string,
+): Promise<ApiResponse<AdminUtilityService>> => {
+  try {
+    const endpoint = API.ADMIN.TOPUP_SERVICE.READONE.replace(":id", id);
+    const response = await axios.get<ApiResponse<AdminUtilityService>>(endpoint);
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Get topup service failed");
+  }
+};
+
+export const updateOneTopupService = async (
+  id: string,
+  payload: UpdateUtilityServicePayload,
+): Promise<ApiResponse<AdminUtilityService>> => {
+  try {
+    const endpoint = API.ADMIN.TOPUP_SERVICE.UPDATE.replace(":id", id);
+    const response = await axios.put<ApiResponse<AdminUtilityService>>(
+      endpoint,
+      payload,
+    );
+    return response.data;
+  } catch (error) {
+    throw normalizeError(error, "Update topup service failed");
+  }
+};
+
+export const deleteOneTopupService = async (
+  id: string,
+): Promise<DeleteResponse> => {
+  try {
+    const endpoint = API.ADMIN.TOPUP_SERVICE.DELETE.replace(":id", id);
+    const response = await axios.delete(endpoint);
+
+    if (response.status === 204) {
+      return {
+        success: true,
+        message: "Topup service deleted successfully",
+      };
+    }
+
+    return response.data as DeleteResponse;
+  } catch (error) {
+    throw normalizeError(error, "Delete topup service failed");
   }
 };

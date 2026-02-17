@@ -36,6 +36,20 @@ export const API = {
             UPDATE: "/api/admin/hotels/:id",
             DELETE: "/api/admin/hotels/:id",
             READONE: "/api/admin/hotels/:id"
+        },
+        INTERNET_SERVICE: {
+            CREATE: "/api/admin/internet-services",
+            READALL: "/api/admin/internet-services",
+            UPDATE: "/api/admin/internet-services/:id",
+            DELETE: "/api/admin/internet-services/:id",
+            READONE: "/api/admin/internet-services/:id"
+        },
+        TOPUP_SERVICE: {
+            CREATE: "/api/admin/topup-services",
+            READALL: "/api/admin/topup-services",
+            UPDATE: "/api/admin/topup-services/:id",
+            DELETE: "/api/admin/topup-services/:id",
+            READONE: "/api/admin/topup-services/:id"
         }
     }
 }

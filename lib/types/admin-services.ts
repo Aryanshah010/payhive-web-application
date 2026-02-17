@@ -14,6 +14,7 @@ export type AdminListResponse<T> = {
 };
 
 export type FlightClass = "Economy" | "Business";
+export type UtilityServiceType = "internet" | "topup";
 
 export type AdminFlight = {
   _id: string;
@@ -47,6 +48,20 @@ export type AdminHotel = {
   updatedAt?: string;
 };
 
+export type AdminUtilityService = {
+  _id: string;
+  type: UtilityServiceType;
+  provider: string;
+  name: string;
+  packageLabel: string;
+  amount: number;
+  validationRegex: string;
+  isActive: boolean;
+  meta?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type FlightListQuery = {
   page?: number;
   limit?: number;
@@ -62,6 +77,14 @@ export type HotelListQuery = {
   limit?: number;
   search?: string;
   city?: string;
+};
+
+export type UtilityServiceListQuery = {
+  page?: number;
+  limit?: number;
+  provider?: string;
+  search?: string;
+  isActive?: boolean;
 };
 
 export type CreateFlightPayload = {
@@ -93,3 +116,15 @@ export type CreateHotelPayload = {
 };
 
 export type UpdateHotelPayload = Partial<CreateHotelPayload>;
+
+export type CreateUtilityServicePayload = {
+  provider: string;
+  name: string;
+  packageLabel?: string;
+  amount: number;
+  validationRegex?: string;
+  isActive: boolean;
+  meta?: Record<string, unknown>;
+};
+
+export type UpdateUtilityServicePayload = Partial<CreateUtilityServicePayload>;

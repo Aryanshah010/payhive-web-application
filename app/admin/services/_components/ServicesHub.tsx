@@ -8,11 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FlightsTable from "./FlightsTable";
 import HotelsTable from "./HotelsTable";
+import InternetServicesTable from "./InternetServicesTable";
+import TopupServicesTable from "./TopupServicesTable";
 
-type ServiceTab = "flights" | "hotels";
+type ServiceTab = "flights" | "hotels" | "internet" | "topup";
 
 const getTabFromSearchParam = (value: string | null): ServiceTab => {
-  return value === "hotels" ? "hotels" : "flights";
+  if (value === "hotels") return "hotels";
+  if (value === "internet") return "internet";
+  if (value === "topup") return "topup";
+  return "flights";
 };
 
 export default function ServicesHub() {
@@ -23,13 +28,33 @@ export default function ServicesHub() {
   const activeTab = getTabFromSearchParam(searchParams.get("tab"));
 
   const createHref = useMemo(() => {
-    return activeTab === "hotels"
-      ? "/admin/services/hotels/create"
-      : "/admin/services/flights/create";
+    switch (activeTab) {
+      case "hotels":
+        return "/admin/services/hotels/create";
+      case "internet":
+        return "/admin/services/internet/create";
+      case "topup":
+        return "/admin/services/topup/create";
+      default:
+        return "/admin/services/flights/create";
+    }
+  }, [activeTab]);
+
+  const createButtonLabel = useMemo(() => {
+    switch (activeTab) {
+      case "hotels":
+        return "Create Hotel";
+      case "internet":
+        return "Create Internet Service";
+      case "topup":
+        return "Create Mobile Data/Topup";
+      default:
+        return "Create Flight";
+    }
   }, [activeTab]);
 
   const handleTabChange = (tab: string) => {
-    const nextTab = tab === "hotels" ? "hotels" : "flights";
+    const nextTab = getTabFromSearchParam(tab);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", nextTab);
     router.replace(`${pathname}?${params.toString()}`);
@@ -42,13 +67,11 @@ export default function ServicesHub() {
           <div>
             <CardTitle>Services</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Manage flights and hotels inventory used in booking flows.
+              Manage flights, hotels, internet, and mobile data/topup services.
             </p>
           </div>
           <Button asChild>
-            <Link href={createHref}>
-              {activeTab === "hotels" ? "Create Hotel" : "Create Flight"}
-            </Link>
+            <Link href={createHref}>{createButtonLabel}</Link>
           </Button>
         </CardHeader>
         <CardContent>
@@ -56,6 +79,8 @@ export default function ServicesHub() {
             <TabsList>
               <TabsTrigger value="flights">Flights</TabsTrigger>
               <TabsTrigger value="hotels">Hotels</TabsTrigger>
+              <TabsTrigger value="internet">Internet</TabsTrigger>
+              <TabsTrigger value="topup">Mobile Data/Topup</TabsTrigger>
             </TabsList>
 
             <TabsContent value="flights">
@@ -64,6 +89,14 @@ export default function ServicesHub() {
 
             <TabsContent value="hotels">
               <HotelsTable />
+            </TabsContent>
+
+            <TabsContent value="internet">
+              <InternetServicesTable />
+            </TabsContent>
+
+            <TabsContent value="topup">
+              <TopupServicesTable />
             </TabsContent>
           </Tabs>
         </CardContent>

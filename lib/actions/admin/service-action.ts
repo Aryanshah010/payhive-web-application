@@ -4,29 +4,44 @@ import { revalidatePath } from "next/cache";
 import {
   createFlight,
   createHotel,
+  createInternetService,
+  createTopupService,
   deleteOneFlight,
   deleteOneHotel,
+  deleteOneInternetService,
+  deleteOneTopupService,
   getAllFlights,
   getAllHotels,
+  getAllInternetServices,
+  getAllTopupServices,
   getOneFlight,
   getOneHotel,
+  getOneInternetService,
+  getOneTopupService,
   updateOneFlight,
   updateOneHotel,
+  updateOneInternetService,
+  updateOneTopupService,
 } from "@/lib/api/admin/service";
 import type {
   CreateFlightPayload,
   CreateHotelPayload,
+  CreateUtilityServicePayload,
   FlightListQuery,
   HotelListQuery,
   ServiceApiError,
+  UtilityServiceListQuery,
   UpdateFlightPayload,
   UpdateHotelPayload,
+  UpdateUtilityServicePayload,
 } from "@/lib/types/admin-services";
 
 const SERVICE_REVALIDATE_PATHS = [
   "/admin/services",
   "/admin/services/flights",
   "/admin/services/hotels",
+  "/admin/services/internet",
+  "/admin/services/topup",
 ] as const;
 
 const revalidateServicePaths = () => {
@@ -263,5 +278,238 @@ export const handleDeleteOneHotel = async (id: string) => {
     };
   } catch (error) {
     return normalizeActionError(error, "Delete hotel action failed");
+  }
+};
+
+export const handleCreateInternetService = async (
+  payload: CreateUtilityServicePayload,
+) => {
+  try {
+    const response = await createInternetService(payload);
+
+    if (response.success) {
+      revalidateServicePaths();
+      return {
+        success: true,
+        message: response.message || "Internet service created successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Create internet service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Create internet service action failed");
+  }
+};
+
+export const handleGetAllInternetServices = async (
+  query: UtilityServiceListQuery = {},
+) => {
+  try {
+    const response = await getAllInternetServices(query);
+
+    if (response.success) {
+      return {
+        success: true,
+        message: response.message || "Internet services fetched successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Get all internet services failed",
+    };
+  } catch (error) {
+    return normalizeActionError(
+      error,
+      "Get all internet services action failed",
+    );
+  }
+};
+
+export const handleGetOneInternetService = async (id: string) => {
+  try {
+    const response = await getOneInternetService(id);
+
+    if (response.success) {
+      return {
+        success: true,
+        message: response.message || "Internet service fetched successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Get internet service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Get internet service action failed");
+  }
+};
+
+export const handleUpdateOneInternetService = async (
+  id: string,
+  payload: UpdateUtilityServicePayload,
+) => {
+  try {
+    const response = await updateOneInternetService(id, payload);
+
+    if (response.success) {
+      revalidateServicePaths();
+      revalidatePath(`/admin/services/internet/${id}`);
+      return {
+        success: true,
+        message: response.message || "Internet service updated successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Update internet service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Update internet service action failed");
+  }
+};
+
+export const handleDeleteOneInternetService = async (id: string) => {
+  try {
+    const response = await deleteOneInternetService(id);
+
+    if (response.success) {
+      revalidateServicePaths();
+      return {
+        success: true,
+        message: response.message || "Internet service deleted successfully",
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Delete internet service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Delete internet service action failed");
+  }
+};
+
+export const handleCreateTopupService = async (
+  payload: CreateUtilityServicePayload,
+) => {
+  try {
+    const response = await createTopupService(payload);
+
+    if (response.success) {
+      revalidateServicePaths();
+      return {
+        success: true,
+        message: response.message || "Topup service created successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Create topup service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Create topup service action failed");
+  }
+};
+
+export const handleGetAllTopupServices = async (
+  query: UtilityServiceListQuery = {},
+) => {
+  try {
+    const response = await getAllTopupServices(query);
+
+    if (response.success) {
+      return {
+        success: true,
+        message: response.message || "Topup services fetched successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Get all topup services failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Get all topup services action failed");
+  }
+};
+
+export const handleGetOneTopupService = async (id: string) => {
+  try {
+    const response = await getOneTopupService(id);
+
+    if (response.success) {
+      return {
+        success: true,
+        message: response.message || "Topup service fetched successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Get topup service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Get topup service action failed");
+  }
+};
+
+export const handleUpdateOneTopupService = async (
+  id: string,
+  payload: UpdateUtilityServicePayload,
+) => {
+  try {
+    const response = await updateOneTopupService(id, payload);
+
+    if (response.success) {
+      revalidateServicePaths();
+      revalidatePath(`/admin/services/topup/${id}`);
+      return {
+        success: true,
+        message: response.message || "Topup service updated successfully",
+        data: response.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Update topup service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Update topup service action failed");
+  }
+};
+
+export const handleDeleteOneTopupService = async (id: string) => {
+  try {
+    const response = await deleteOneTopupService(id);
+
+    if (response.success) {
+      revalidateServicePaths();
+      return {
+        success: true,
+        message: response.message || "Topup service deleted successfully",
+      };
+    }
+
+    return {
+      success: false,
+      message: response.message || "Delete topup service failed",
+    };
+  } catch (error) {
+    return normalizeActionError(error, "Delete topup service action failed");
   }
 };

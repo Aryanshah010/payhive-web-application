@@ -62,10 +62,10 @@ export default function AdminDashboard({ stats }: { stats: AdminDashboardStats }
         <KpiCard
           title="Total Transactions"
           value={numberFormatter.format(stats.kpis.totalTransactions)}
-          description="Mocked transaction volume for dashboard preview"
+          description=""
         />
         <KpiCard
-          title="Total Revenue (NPR)"
+          title="Total Transaction Amount (NPR)"
           value={currencyFormatter.format(stats.kpis.totalRevenue)}
           description="Mock monetization revenue from mobile app"
         />
