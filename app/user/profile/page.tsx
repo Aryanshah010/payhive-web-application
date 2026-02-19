@@ -21,8 +21,8 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-linear-to-b from-background to-muted/30 p-4 md:p-6">
-      <Card className="w-full max-w-lg border-border/60 shadow-xl shadow-black/5 backdrop-blur-sm bg-card/80">
+    <div className="mx-auto w-full max-w-2xl">
+      <Card className="border-border/60 bg-card/80 shadow-xl shadow-black/5 backdrop-blur-sm">
         <CardHeader className="space-y-1 pb-6">
           <CardTitle className="text-2xl font-bold tracking-tight text-center">
             Your Profile

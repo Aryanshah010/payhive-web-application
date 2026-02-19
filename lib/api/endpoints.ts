@@ -11,6 +11,7 @@ export const API = {
         UPDATEPROFILE: "/api/profile/updateProfile"
     },
     TRANSACTIONS: {
+        LIST: "/api/transactions",
         BENEFICIARY: "/api/transactions/beneficiary",
         PREVIEW: "/api/transactions/preview",
         CONFIRM: "/api/transactions/confirm"

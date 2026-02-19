@@ -2,14 +2,14 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { handleUpdateProfile } from "@/lib/actions/user-action";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { useRouter } from "next/navigation";
-import { UpdateUserFormInput, updateUserSchema } from "../schema";
+import { UpdateUserData, UpdateUserFormInput, updateUserSchema } from "../schema";
 import { Label } from "@/components/ui/label";
 import { Camera, X } from "lucide-react";
 import { LoadingButton } from "@/app/_components/LoadingButton";
@@ -20,11 +20,13 @@ export default function UpdateProfileForm({ user }: { user: any }) {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors, isSubmitting, touchedFields },
-  } = useForm<any>({
+  } = useForm<UpdateUserFormInput, unknown, UpdateUserData>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       fullName: user?.fullName || "",
+      email: user?.email || "",
       password: "",
       imageUrl: undefined,
     },
@@ -34,6 +36,15 @@ export default function UpdateProfileForm({ user }: { user: any }) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [inputKey, setInputKey] = useState(0);
   const [pending] = useTransition();
+
+  useEffect(() => {
+    reset({
+      fullName: user?.fullName || "",
+      email: user?.email || "",
+      password: "",
+      imageUrl: undefined,
+    });
+  }, [user?.fullName, user?.email, reset]);
 
   const handleImageChange = (
     file: File | undefined,
@@ -57,22 +68,24 @@ export default function UpdateProfileForm({ user }: { user: any }) {
     setInputKey((k) => k + 1);
   };
 
-  const onSubmit = async (data: UpdateUserFormInput) => {
+  const onSubmit = async (data: UpdateUserData) => {
     setError(null);
-    const parsed = updateUserSchema.parse(data);
-
     const formData = new FormData();
 
-    if (touchedFields.fullName && parsed.fullName) {
-      formData.append("fullName", parsed.fullName);
+    if (touchedFields.fullName && data.fullName) {
+      formData.append("fullName", data.fullName);
     }
 
-    if (touchedFields.password && parsed.password) {
-      formData.append("password", parsed.password);
+    if (touchedFields.email && data.email) {
+      formData.append("email", data.email);
     }
 
-    if (parsed.imageUrl) {
-      formData.append("profilePicture", parsed.imageUrl);
+    if (touchedFields.password && data.password) {
+      formData.append("password", data.password);
+    }
+
+    if (data.imageUrl) {
+      formData.append("profilePicture", data.imageUrl);
     }
 
     if ([...formData.keys()].length === 0) {
@@ -188,6 +201,19 @@ export default function UpdateProfileForm({ user }: { user: any }) {
               {errors.fullName.message}
             </p>
           )}
+      </Field>
+
+      <Field className="space-y-0">
+        <FieldLabel>Email</FieldLabel>
+        <Input
+          {...register("email")}
+          type="email"
+          autoComplete="email"
+          disabled={isSubmitting}
+        />
+        {touchedFields.email && typeof errors.email?.message === "string" && (
+          <p className="text-sm text-destructive">{errors.email.message}</p>
+        )}
       </Field>
 
       <Field className="space-y-0">

@@ -10,6 +10,11 @@ export const updateUserSchema = z.object({
         z.string().min(2, { message: "minimum 2 characters are needed" }).optional()
     ),
 
+    email: z.preprocess(
+        (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
+        z.string().email("Please enter a valid email").optional()
+    ),
+
     password: z.preprocess(
         (val) => (typeof val === "string" && val.trim() === "" ? undefined : val),
         z

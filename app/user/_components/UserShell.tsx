@@ -4,16 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import {
-  BriefcaseBusiness,
-  HandCoins,
-  LayoutDashboard,
-  Menu,
-  SunMoon,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, Menu, Send, SunMoon, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -26,15 +17,13 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Create User", href: "/admin/users/create", icon: UserPlus },
-  { label: "Manage Users", href: "/admin/users", icon: Users },
-  { label: "Monetization", href: "/admin/monetization", icon: HandCoins },
-  { label: "Services", href: "/admin/services", icon: BriefcaseBusiness },
+  { label: "Dashboard", href: "/user/dashboard", icon: LayoutDashboard },
+  { label: "Send Money", href: "/user/send-money", icon: Send },
+  { label: "Profile", href: "/user/profile", icon: UserRound },
 ];
 
 function isActivePath(pathname: string, href: string) {
-  if (href === "/admin") return pathname === "/admin";
+  if (href === "/user/dashboard") return pathname === "/user/dashboard";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -51,7 +40,7 @@ function SidebarContent({
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
           PayHive
         </p>
-        <h2 className="mt-2 text-lg font-semibold text-foreground">Admin Panel</h2>
+        <h2 className="mt-2 text-lg font-semibold text-foreground">User Panel</h2>
       </div>
 
       <Separator />
@@ -90,7 +79,7 @@ function SidebarContent({
   );
 }
 
-export default function AdminShell({ children }: { children: React.ReactNode }) {
+export default function UserShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -98,7 +87,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const currentSection = useMemo(() => {
     return (
       NAV_ITEMS.find((item) => isActivePath(pathname, item.href))?.label ||
-      "Admin"
+      "User"
     );
   }, [pathname]);
 
@@ -151,11 +140,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 >
                   <Menu className="size-4" />
                 </Button>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {currentSection}
-                  </p>
-                </div>
+                <p className="text-sm font-medium text-foreground">{currentSection}</p>
               </div>
 
               <div className="flex items-center gap-2">

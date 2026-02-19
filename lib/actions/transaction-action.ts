@@ -4,6 +4,8 @@ import {
   lookupBeneficiary,
   previewTransfer,
   confirmTransfer,
+  getTransactionHistory,
+  type GetTransactionHistoryParams,
 } from "@/lib/api/transaction";
 
 export async function handleLookupBeneficiary(phoneNumber: string) {
@@ -72,6 +74,28 @@ export async function handleConfirmTransfer(
     return {
       success: false,
       message: error.message || "Confirm transfer failed",
+      details: error.details,
+      status: error.status,
+    };
+  }
+}
+
+export async function handleGetTransactionHistory(
+  params: GetTransactionHistoryParams = {},
+) {
+  try {
+    const result = await getTransactionHistory(params);
+    if (result.success) {
+      return { success: true, data: result.data, message: result.message };
+    }
+    return {
+      success: false,
+      message: result.message || "Get transaction history failed",
+    };
+  } catch (error: Error | any) {
+    return {
+      success: false,
+      message: error.message || "Get transaction history failed",
       details: error.details,
       status: error.status,
     };
