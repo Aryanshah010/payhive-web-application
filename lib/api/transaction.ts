@@ -4,6 +4,15 @@ import { API } from "./endpoints";
 
 type ApiError = Error & { status?: number; details?: any };
 
+export type TransactionHistoryDirection = "all" | "debit" | "credit";
+
+export type GetTransactionHistoryParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  direction?: TransactionHistoryDirection;
+};
+
 const throwApiError = (error: any, fallback: string) => {
   const message =
     error.response?.data?.message || error.message || fallback;
@@ -58,5 +67,21 @@ export const confirmTransfer = async (
     return response.data;
   } catch (error: any) {
     throwApiError(error, "Confirm transfer failed");
+  }
+};
+
+export const getTransactionHistory = async ({
+  page = 1,
+  limit = 10,
+  search = "",
+  direction = "all",
+}: GetTransactionHistoryParams = {}) => {
+  try {
+    const response = await axios.get(API.TRANSACTIONS.LIST, {
+      params: { page, limit, search, direction },
+    });
+    return response.data;
+  } catch (error: any) {
+    throwApiError(error, "Get transaction history failed");
   }
 };

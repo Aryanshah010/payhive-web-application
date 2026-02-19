@@ -39,7 +39,8 @@ export default function LoginForm() {
           throw new Error(response.message);
         }
         if (response.success) {
-          router.push("/user/dashboard");
+          const role = String(response.data?.role || "").toLowerCase();
+          router.push(role === "admin" ? "/admin" : "/user/dashboard");
         } else {
           setError("Login failed");
         }

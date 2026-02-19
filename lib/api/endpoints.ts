@@ -11,6 +11,7 @@ export const API = {
         UPDATEPROFILE: "/api/profile/updateProfile"
     },
     TRANSACTIONS: {
+        LIST: "/api/transactions",
         BENEFICIARY: "/api/transactions/beneficiary",
         PREVIEW: "/api/transactions/preview",
         CONFIRM: "/api/transactions/confirm"
@@ -22,6 +23,34 @@ export const API = {
             UPDATE: '/api/admin/users/:id',
             DELETE: '/api/admin/users/:id',
             READONE: '/api/admin/users/:id'
+        },
+        FLIGHT: {
+            CREATE: "/api/admin/flights",
+            READALL: "/api/admin/flights",
+            UPDATE: "/api/admin/flights/:id",
+            DELETE: "/api/admin/flights/:id",
+            READONE: "/api/admin/flights/:id"
+        },
+        HOTEL: {
+            CREATE: "/api/admin/hotels",
+            READALL: "/api/admin/hotels",
+            UPDATE: "/api/admin/hotels/:id",
+            DELETE: "/api/admin/hotels/:id",
+            READONE: "/api/admin/hotels/:id"
+        },
+        INTERNET_SERVICE: {
+            CREATE: "/api/admin/internet-services",
+            READALL: "/api/admin/internet-services",
+            UPDATE: "/api/admin/internet-services/:id",
+            DELETE: "/api/admin/internet-services/:id",
+            READONE: "/api/admin/internet-services/:id"
+        },
+        TOPUP_SERVICE: {
+            CREATE: "/api/admin/topup-services",
+            READALL: "/api/admin/topup-services",
+            UPDATE: "/api/admin/topup-services/:id",
+            DELETE: "/api/admin/topup-services/:id",
+            READONE: "/api/admin/topup-services/:id"
         }
     }
 }
