@@ -51,6 +51,12 @@ export const API = {
             UPDATE: "/api/admin/topup-services/:id",
             DELETE: "/api/admin/topup-services/:id",
             READONE: "/api/admin/topup-services/:id"
+        },
+        BANK: {
+            CREATE: "/api/admin/banks",
+            READALL: "/api/admin/banks",
+            UPDATE: "/api/admin/banks/:id",
+            DELETE: "/api/admin/banks/:id"
         }
     }
 }

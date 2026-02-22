@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import {
   BriefcaseBusiness,
   HandCoins,
+  Landmark,
   LayoutDashboard,
   Menu,
   SunMoon,
@@ -29,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Create User", href: "/admin/users/create", icon: UserPlus },
   { label: "Manage Users", href: "/admin/users", icon: Users },
+  { label: "Banks", href: "/admin/banks", icon: Landmark },
   { label: "Monetization", href: "/admin/monetization", icon: HandCoins },
   { label: "Services", href: "/admin/services", icon: BriefcaseBusiness },
 ];
