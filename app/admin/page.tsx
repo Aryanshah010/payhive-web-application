@@ -1,8 +1,13 @@
 import AdminDashboard from "./_components/AdminDashboard";
-import { getAdminDashboardStats } from "@/lib/admin/dashboard-stats";
+import { createEmptyAdminDashboardStats } from "@/lib/admin/dashboard-stats";
+import { handleGetDashboardMetrics } from "@/lib/actions/admin/dashboard-action";
 
 export default async function Page() {
-  const stats = await getAdminDashboardStats();
+  const result = await handleGetDashboardMetrics("6m");
+  const dashboardData =
+    result.success && result.data
+      ? result.data
+      : createEmptyAdminDashboardStats();
 
-  return <AdminDashboard stats={stats} />;
+  return <AdminDashboard initialData={dashboardData} />;
 }

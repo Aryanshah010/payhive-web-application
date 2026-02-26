@@ -57,6 +57,13 @@ export const API = {
             READALL: "/api/admin/banks",
             UPDATE: "/api/admin/banks/:id",
             DELETE: "/api/admin/banks/:id"
+        },
+        FEE_CONFIG: {
+            CREATE: "/api/admin/fee-configs",
+            READALL: "/api/admin/fee-configs",
+            UPDATE: "/api/admin/fee-configs/:id",
+            DELETE: "/api/admin/fee-configs/:id",
+            READONE: "/api/admin/fee-configs/:id"
         }
     }
 }
