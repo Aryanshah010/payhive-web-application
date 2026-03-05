@@ -21,6 +21,12 @@ export const handleGetDashboardMetrics = async (
 ): Promise<DashboardActionSuccess | DashboardActionFailure> => {
   try {
     const response = await getDashboardMetrics(range);
+    if (!response) {
+      return {
+        success: false,
+        message: "Get dashboard metrics failed",
+      };
+    }
     if (response.success) {
       return {
         success: true,
